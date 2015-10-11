@@ -43,19 +43,27 @@ void test_block_groups(Ext2FS * fs){
 }
 
 int main(int argc, char ** argv)
-{
+{	
 	HDD hdd(argv[1]);
+	Ext2FS * fs = new Ext2FS(hdd, 1);
+
+	struct Ext2FSSuperblock * superblock = fs->superblock();
+	unsigned int block_size = 1024 << superblock->log_block_size;
 
 	test_hdd(&hdd);
-
-	Ext2FS * fs = new Ext2FS(hdd, 1);
 
 	test_file_system(fs);
 
 	test_block_groups(fs);
 
 	char * dir = "/grupos/gNUMERO/nota.txt";
-	fd_t descriptor = fs.open(dir, dir);
+	fd_t descriptor = fs->open((const char *)dir, dir);
+	char buffer[17];
+	fs->seek(descriptor,14000);
+	int tamLeidos = fs->read(descriptor, (unsigned char *)buffer, (int)block_size);
+	cout << buffer << endl << endl;
+
+
 
 	return 0;
 }
